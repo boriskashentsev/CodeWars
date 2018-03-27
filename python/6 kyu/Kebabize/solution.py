@@ -1,6 +1,15 @@
 def kebabize(string):
-    #your code here
-    pass
+    result = ""
+    for char in string:
+        if (char.isalpha()):
+            if (char.isupper()):
+                result += "-" + char.lower()
+            else:
+                result += char
+    #print result
+    if (result != '')and(result[0] == "-"):
+        result = result[1:]
+    return result
 
 def testing(value1, value2): 
     if (value1 == value2):
