@@ -1,10 +1,19 @@
+class Lift(object):
+    def __init__(self):
+        self.direction = "up" # "up" or "down"
+        self.people = []
+        self.floor = 0
+        self.destination = -1
+
 class Dinglemouse(object):
 
     def __init__(self, queues, capacity):
+        self.lift = Lift()
         pass
         
     def theLift(self):
-        return []
+        result = [0]
+        return result
 
 def testing(value1, value2):
     if (value1 == value2):
