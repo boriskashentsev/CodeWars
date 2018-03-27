@@ -12,17 +12,3 @@ def solve(s):
         if (currentValue > result):
             result = currentValue
     return result
-
-def testing(value1, value2):
-    if (value1 == value2):
-        print ("You are wizard Harry!")
-    else :
-        print ("Dudley is behind you")
-
-testing(solve("zodiac"),26)
-testing(solve("chruschtschov"),80)
-testing(solve("khrushchev"),38)
-testing(solve("strength"),57)
-testing(solve("catchphrase"),73)
-testing(solve("twelfthstreet"),103)
-testing(solve("mischtschenkoana"),80)
