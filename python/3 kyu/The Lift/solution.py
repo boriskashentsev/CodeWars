@@ -1,6 +1,7 @@
 class Lift(object):
-    def __init__(self):
-        self.direction = "up" # "up" or "down"
+    def __init__(self, capacity):
+        self.direction = 1 # "1" for up and "-1" for down
+        self.capacity = capacity
         self.people = []
         self.floor = 0
         self.destination = -1
@@ -8,11 +9,13 @@ class Lift(object):
 class Dinglemouse(object):
 
     def __init__(self, queues, capacity):
-        self.lift = Lift()
-        pass
+        self.lift = Lift(capacity)
+        self.queues = queues
         
     def theLift(self):
         result = [0]
+        print queues
+        print self.lift.capacity
         return result
 
 def testing(value1, value2):
