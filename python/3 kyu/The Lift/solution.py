@@ -137,7 +137,6 @@ class Dinglemouse(object):
     def theLift(self):
         result = [0]
         newQueues = self.tupleToList(self.queues)
-        print (newQueues)
 
         self.lift.MoveToTheNextNeededFloor(0,newQueues)
         nextFloor=self.lift.FindFloorToVisit(newQueues)
@@ -151,7 +150,6 @@ class Dinglemouse(object):
         if (result[len(result)-1] != 0):
             result.append(0)
         
-        #print result
         return result
 
 def testing(value1, value2):
