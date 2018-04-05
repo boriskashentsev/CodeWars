@@ -7,7 +7,7 @@ class Lift(object):
 
     @classmethod
     def __init__(cls, capacity):
-        cls.direction = -1 # "1" for up and "-1" for down. it is assigned -1 at the beginning because we treat as if Lift just arrived from the top and ready to start it's movement up
+        cls.direction = 1 # "1" for up and "-1" for down. it is assigned -1 at the beginning because we treat as if Lift just arrived from the top and ready to start it's movement up
         cls.capacity = capacity
         cls.people = []
         cls.floor = 0
@@ -26,9 +26,9 @@ class Lift(object):
         # Second, check people on the floors and see if they are going the same direction
         floorsPossibleToVisit = []
         if (self.direction > 0):
-            floorsPossibleToVisit = range(self.floor, len(queues))
+            floorsPossibleToVisit = range(self.floor + 1, len(queues))
         else:
-            floorsPossibleToVisit = range(self.floor, -1, -1)
+            floorsPossibleToVisit = range(self.floor - 1, -1, -1)
         for floor in floorsPossibleToVisit:
             peopleOnIthFloor = queues[floor]
             if (self.direction > 0): # lift goes up
@@ -64,111 +64,57 @@ class Lift(object):
         # And last, if we ended up here, Lif has to turn around and Go into the oposite direction
         return -1
 
-
-
-    '''
     @classmethod
-    def FindFloorsToVisit(cls, queues):
-        cls.direction = -cls.direction
-        cls.floorsToVisit = list(cls.people)
-        floorsPossibleToVisit = []
-        if (cls.direction > 0):
-            floorsPossibleToVisit = range(cls.floor, len(queues))
-        else:
-            floorsPossibleToVisit = range(cls.floor, -1, -1)
-        for floor in floorsPossibleToVisit:
-            peopleOnIthFloor = queues[floor]
-            if (cls.direction > 0): # lift goes up
-                if (len([person for person in peopleOnIthFloor if person > floor]) > 0): # there are people going up from the current floor
-                    cls.floorsToVisit.append(floor)
-            if (cls.direction < 0): # lift goes down
-                if (len([person for person in peopleOnIthFloor if person < floor]) > 0): # there are people going down from the current floor
-                    cls.floorsToVisit.append(floor)
-        cls.floorsToVisit = list(set(cls.floorsToVisit))
-        cls.floorsToVisit.sort()
-        if (cls.direction < 0):
-            cls.floorsToVisit.reverse()
-
-        # At this point we have a list of floors that asked for the lift that are going in the same direction as the lift.
-        # we are missing floors that are past the maximum (minimum when going down) floor, that are going the opposite direction.
-        if (cls.direction > 0) :
-            floorsPossibleToVisit = range(len(queues)-1, max(cls.floorsToVisit or [cls.floor]),-1)
-        else :
-            floorsPossibleToVisit = range(0,min(cls.floorsToVisit or [cls.floor]))
-        
-        for floor in floorsPossibleToVisit:
-            peopleOnIthFloor = queues[floor]
-            if (cls.direction > 0):
-                if (len([person for person in peopleOnIthFloor if person < floor]) > 0):
-                    cls.floorsToVisit.append (floor)
-                    break
-            else:
-                if (len([person for person in peopleOnIthFloor if person > floor]) > 0):
-                    cls.floorsToVisit.append (floor)
-                    break
-    '''
-
-    @classmethod
-    def AddFloorToVisit(cls, newFloor):
-        cls.floorsToVisit.append(newFloor)
-        cls.floorsToVisit = list(set(cls.floorsToVisit))
-        cls.floorsToVisit.sort()
-        if (cls.direction < 0):
-            cls.floorsToVisit.reverse()
-
-    # this method will move lift through the list of floors in one direction and collect people
-    @classmethod
-    def MoveThroughAllFloors(cls ,queues):
-
-        while (len(cls.floorsToVisit) > 0):
-            cls.MoveToTheNextNeededFloor(queues)
-
-        # Let's collect people from the last floor that lift stopped at
-        peopleOnFloor = queues[cls.floor]
-
-        #print ("Collecting: ",peopleOnFloor)
-        while len(peopleOnFloor) > 0:
-            if cls.capacity > len(cls.people):
-                #print (cls.people)
-                cls.people.append(peopleOnFloor[0])
-                peopleOnFloor.pop(0)
+    def MoveLiftOneDirection(self, queues):
+        nextFloor = self.FindFloorToVisit(queues)
+        while nextFloor >=0 :
+            self.MoveToTheNextNeededFloor(nextFloor, queues)
+            nextFloor = self.FindFloorToVisit(queues)
+        # We at the end of one way go, time to turn around and check the other direction
+        self.direction = -self.direction
+        # Now let's pick up people on the current floor and who is going the opposite the one we started the run with
+        indexOfEnteredPeople = []
+        for i,personNeedsFloor in enumerate(queues[self.floor]):
+            if self.capacity > len(self.people):
+                if self.direction > 0:
+                    if personNeedsFloor > self.floor:
+                        self.people.append(personNeedsFloor)
+                        indexOfEnteredPeople.append(i)
+                else:
+                    if personNeedsFloor < self.floor:
+                        self.people.append(personNeedsFloor)
+                        indexOfEnteredPeople.append(i)
             else:
                 break
-        
-        #print (cls.people)
-        #print (self.)
-        #print (queues)
+
+        self.removeElementsFromList(queues[self.floor], indexOfEnteredPeople)
 
     @classmethod
-    def MoveToTheNextNeededFloor(cls, queues):
-        visitingFloor = cls.floorsToVisit.pop(0)
-        cls.floor = visitingFloor
-        if (cls.listOfVisitedFloors[len(cls.listOfVisitedFloors)-1] != visitingFloor):
-            cls.listOfVisitedFloors.append(visitingFloor)
+    def MoveToTheNextNeededFloor(self, visitingFloor, queues):
+        self.floor = visitingFloor
+        if (self.listOfVisitedFloors[len(self.listOfVisitedFloors)-1] != visitingFloor):
+            self.listOfVisitedFloors.append(visitingFloor)
         # First, let people exit
 
-        indexOfLeavingPeople = [i for i,person in enumerate(cls.people) if person == visitingFloor]
-        cls.removeElementsFromList(cls.people, indexOfLeavingPeople)
+        indexOfLeavingPeople = [i for i,person in enumerate(self.people) if person == visitingFloor]
+        self.removeElementsFromList(self.people, indexOfLeavingPeople)
 
         # Now, let new people enter
         indexOfEnteredPeople = []
         for i,personNeedsFloor in enumerate(queues[visitingFloor]):
-            if cls.capacity > len(cls.people):
-                if cls.direction > 0:
+            if self.capacity > len(self.people):
+                if self.direction > 0:
                     if personNeedsFloor > visitingFloor:
-                        cls.people.append(personNeedsFloor)
-                        cls.AddFloorToVisit(personNeedsFloor)
+                        self.people.append(personNeedsFloor)
                         indexOfEnteredPeople.append(i)
-                        #print (self.people)
                 else:
                     if personNeedsFloor < visitingFloor:
-                        cls.people.append(personNeedsFloor)
-                        cls.AddFloorToVisit(personNeedsFloor)
+                        self.people.append(personNeedsFloor)
                         indexOfEnteredPeople.append(i)
             else:
                 break
 
-        cls.removeElementsFromList(queues[visitingFloor], indexOfEnteredPeople)
+        self.removeElementsFromList(queues[visitingFloor], indexOfEnteredPeople)
     
     @classmethod
     def removeElementsFromList(cls, listWithElements, indices):
@@ -191,10 +137,12 @@ class Dinglemouse(object):
     def theLift(self):
         result = [0]
         newQueues = self.tupleToList(self.queues)
-        nextFloor=self.lift.FindFloorToVisit(newQueues)
         print (newQueues)
+
+        self.lift.MoveToTheNextNeededFloor(0,newQueues)
+        nextFloor=self.lift.FindFloorToVisit(newQueues)
         while nextFloor != -1:
-            self.lift.MoveThroughAllFloors(newQueues)
+            self.lift.MoveLiftOneDirection(newQueues)
             nextFloor = self.lift.FindFloorToVisit(newQueues)
         
         result = self.lift.listOfVisitedFloors
@@ -213,12 +161,12 @@ def testing(value1, value2):
         print "Nah."
 
 # Floors:    G     1      2        3     4      5      6         Answers:
-tests = [#[ ( (),   (),    (5,5,5), (),   (),    (),    () ),     [0, 2, 5, 0]          ],
-         #[ ( (),   (),    (1,1),   (),   (),    (),    () ),     [0, 2, 1, 0]          ],
-         #[ ( (),   (3,),  (4,),    (),   (5,),  (),    () ),     [0, 1, 2, 3, 4, 5, 0] ],
-         #[ ( (),   (0,),  (),      (),   (2,),  (3,),  () ),     [0, 5, 4, 3, 2, 1, 0] ],
+tests = [[ ( (),   (),    (5,5,5), (),   (),    (),    () ),     [0, 2, 5, 0]          ],
+         [ ( (),   (),    (1,1),   (),   (),    (),    () ),     [0, 2, 1, 0]          ],
+         [ ( (),   (3,),  (4,),    (),   (5,),  (),    () ),     [0, 1, 2, 3, 4, 5, 0] ],
+         [ ( (),   (0,),  (),      (),   (2,),  (3,),  () ),     [0, 5, 4, 3, 2, 1, 0] ],
          [ ( (5,),   (),  (),      (),    (),    (),    () ),     [0, 5, 0] ],
-         #[ ((2,), (6,), (3, 7, 6, 8, 6), (8, 5, 8, 8), (), (8, 0), (), (), (5,)), [0, 1, 2, 3, 5, 6, 8, 5, 0, 2, 3, 5, 6, 7, 2, 3, 5, 6, 8, 3, 5, 8, 3, 8, 0] ]
+         [ ((2,), (6,), (3, 7, 6, 8, 6), (8, 5, 8, 8), (), (8, 0), (), (), (5,)), [0, 1, 2, 3, 5, 6, 8, 5, 0, 2, 3, 5, 6, 7, 2, 3, 5, 6, 8, 3, 5, 8, 3, 8, 0] ]
          ]
   
 for queues, answer in tests:
