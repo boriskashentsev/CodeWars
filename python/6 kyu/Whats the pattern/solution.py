@@ -1,5 +1,22 @@
+def differences(array):
+    result = []
+    for i in range(1,len(array)):
+        result.append(array[i]-array[i-1])
+    return result
+
 def find_pattern(sequence):
-    return [1]
+    diffs = differences(sequence)
+    for length in range(1,len(diffs)):
+        if (len(diffs) % length == 0):
+            nOfParts = int(len(diffs) / length)
+            flag = True
+            for i in range(1, nOfParts):
+                if diffs[0:length] != diffs[length*i:length*(i+1)]:
+                    flag = False
+                    break
+            if flag:
+                return diffs[0:length]
+    return diffs
 
 def testing(value1, value2):
     if (value1 == value2):
