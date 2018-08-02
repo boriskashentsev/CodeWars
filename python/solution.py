@@ -14,5 +14,6 @@ tests = [[ [1, 2, 3, 4, 5],                                         [1] ],
          [ [0, 1],                                                  [1] ],
          ]
   
-for pattern, answer in tests:
-    testing(find_pattern(pattern), answer)
+for indx, [task, answer] in enumerate(tests):
+    print ("Test #%d :" % indx)
+    testing(find_pattern(task), answer)
