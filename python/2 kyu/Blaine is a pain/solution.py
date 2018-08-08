@@ -32,9 +32,9 @@ def whatOnMap(track, curLoc, move) :
     return track[curLoc[0] + move[0]][curLoc[1] + move[1]]
 
 def trackToSteps(track):
-    modTrack = map(lambda x: list(x), track)
-    steps = {}
-    if modTrack[len(modTrack)-1] == [] :
+    modTrack = list(map(lambda x: list(x), track))
+    steps = []
+    if modTrack[len(modTrack)-1] == [] : # Making sure that there is no empty string in the end of the track
         modTrack.pop()
     for i in range(len(modTrack[0])):
         if modTrack[0][i] in "-|SX+/\\":
@@ -55,8 +55,9 @@ def trackToSteps(track):
                         modTrack[curLoc[0]][curLoc[1]].append(curStep)
                     else :
                         # print "Weird modified track status. Step:", curStep, "Location:", newLocation(curLoc, moveDirection(curDir))
-                        exit()
-                    steps[curStep] = curLoc
+                        # exit()
+                        pass
+                    steps.append(curLoc)
                     curDir = (curDir + ind) % 8
                     curLoc = newLocation(curLoc, moveDirection(curDir))
                     curStep += 1
@@ -65,7 +66,8 @@ def trackToSteps(track):
                     pass
                 else :
                     # print "Weird map status. Step:", curStep, "Location:", newLocation(curLoc, moveDirection((curDir + ind) % 8))
-                    exit()
+                    # exit()
+                    pass
     return (steps, modTrack)
 
 def printTrack(steps,track): # only printing
@@ -90,7 +92,7 @@ def printTrack(steps,track): # only printing
 
 # testing return emptyTrak, otherwise boolean would suffice
 def putTrains(steps, track, trains):
-    emptyTrack = {k: [v, ''] for k,v in steps.items()}
+    emptyTrack = list(map(lambda x: [x, ''], steps))
     for ind,train in enumerate(trains):
         pos = train.position
         location = steps[pos]
@@ -99,20 +101,20 @@ def putTrains(steps, track, trains):
         if emptyTrack[pos][1] == '' and emptyTrack[otherPos][1] == '':
             emptyTrack[pos][1] = train.letter
             for i in range(1,train.length):
-                pos = (train.position - train.direction*i)%len(steps.keys())
+                pos = (train.position - train.direction*i)%len(steps)
                 location = steps[pos]
                 poss = track[location[0]][location[1]] # possible positions to check
                 otherPos = pos if len(poss) == 1 else poss[0] if poss[0] != pos else poss[1]
                 if emptyTrack[pos][1] == '' and emptyTrack[otherPos][1] =='' :
                     emptyTrack[pos][1] = train.letter.lower()
                 else :
-                    if ind > 0:
-                        print "Trains intersected"
-                    else:
-                        print "Train intersected itself"
+                    # if ind > 0:
+                    #     print "Trains intersected"
+                    # else:
+                    #     print "Train intersected itself"
                     return {}
         else :
-            print "Trains intersected"
+            # print "Trains intersected"
             return {}
     return emptyTrack
 
@@ -135,16 +137,19 @@ def train_crash(track, a, aPos, b, bPos, limit):
     trains.append(train(a, aPos))
     trains.append(train(b, bPos))
     time = 0
+    stepsWTrains = putTrains(steps, nTrack, trains)
+    if len(stepsWTrains) == 0:
+        return time
     while time <= limit:
         stepsWTrains = putTrains(steps, nTrack, trains)
         if len(stepsWTrains) == 0:
             return time
-        if time in range(510,520): # for bigger test to check the moment of the intersection
-            print "---> Time: %d <---" % (time)
-            printTrack(stepsWTrains, nTrack)
+        # if time in range(510,520): # for bigger test to check the moment of the intersection
+        #     print "---> Time: %d <---" % (time)
+        #     printTrack(stepsWTrains, nTrack)
         moveTrains(steps, track.split('\n'), trains)
         time += 1
-    return -1 if time > limit else time
+    return -1
 
 
 
