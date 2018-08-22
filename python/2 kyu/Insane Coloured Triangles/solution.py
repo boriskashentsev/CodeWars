@@ -8,14 +8,23 @@ def newColor(color1, color2):
     else:
         return 3 - color1 - color2
         
+# def triangle(row):
+#     length = len(row)
+#     array = list(map(lambda x: {'R' : 0, 'G' : 1, 'B' : 2}[x], row))
+#     while length > 1:
+#         for i in range(length-1):
+#             array[i] = newColor(array[i], array[i+1])
+#         length -= 1
+#     return 'RGB'[array[0]]
+
 def triangle(row):
     length = len(row)
     array = list(map(lambda x: {'R' : 0, 'G' : 1, 'B' : 2}[x], row))
-    while length > 1:
-        for i in range(length-1):
-            array[i] = newColor(array[i], array[i+1])
-        length -= 1
+    for i in range(1, length):
+        for j in range(i,0,-1):
+            array[j-1] = newColor(array[j],array[j-1])
     return 'RGB'[array[0]]
+
 
 def testing(value1, value2):
     if (value1 == value2):
